@@ -1,50 +1,52 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   race_condition.c                                   :+:      :+:    :+:   */
+/*   threads_in_loop.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/23 20:21:56 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/24 20:18:06 by edavid           ###   ########.fr       */
+/*   Created: 2021/09/24 13:26:49 by edavid            #+#    #+#             */
+/*   Updated: 2021/09/24 13:34:19 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <pthread.h>
 #include <stdio.h>
+#define N_OF_THREADS 12
 
-int	mails = 0;
-// int lock = 0;
 pthread_mutex_t	mutex;
+int				mails = 0;
 
 void	*routine()
 {
-	for (int i = 0; i < 1000000; i++)
+	static int	calls;
+
+	printf("Current number of calls: %d\n", calls++);
+	for (int i = 0; i < 10000000; i++)
 	{
-		// Idea of mutex in order to fix the race condition:
-		// if (lock == 1)
-		// 	// wait until the lock is 0
-		// lock = 1;
 		pthread_mutex_lock(&mutex);
 		mails++;
-		// lock = 0;
 		pthread_mutex_unlock(&mutex);
 	}
 }
 
 int	main(void)
 {
-	pthread_t	p1, p2;
+	pthread_t	th[N_OF_THREADS];
 
 	pthread_mutex_init(&mutex, NULL);
-	if (pthread_create(&p1, NULL, &routine, NULL))
-		return (1);
-	if (pthread_create(&p2, NULL, &routine, NULL))
-		return (2);
-	if (pthread_join(p1, NULL))
-		return (3);
-	if (pthread_join(p2, NULL))
-		return (4);
+	for (int i = 0; i < N_OF_THREADS; i++)
+	{
+		if (pthread_create(th + i, NULL, &routine, NULL))
+			return (1);
+		printf("Thread %d has started\n", i);
+	}
+	for (int i = 0; i < N_OF_THREADS; i++)
+	{
+		if (pthread_join(th[i], NULL))
+			return (2);
+		printf("Thread %d has finished execution\n", i);
+	}
 	printf("Number of mails: %d\n", mails);
 	pthread_mutex_destroy(&mutex);
 	return (0);

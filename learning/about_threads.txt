@@ -148,3 +148,41 @@ pthread_mutex_destroy, pthread_mutex_init:
 		EBUSY: The implementation has detected an attempt to reinitialize the object
 			referenced by 'mutex', a previously initialized, but not yet destroyed, mutex.
 		EINVAL: The value specified by 'attr' is invalid.
+
+pthread_detach: int pthread_detach(pthread_t thread)
+	- The pthread_detach() function marks the thread identified by 'thread' as
+		detached. When a detached thread terminates, its resources are automatically
+		released back to the system without the need for another thread to join
+		with the terminated thread.
+	- Attempting to detach an already detached thread results in unspecified bahavior.
+
+	Return value: On success, pthread_detach() returns 0; on error, it returns an
+		error number.
+
+	Errors:
+		EINVAL: 'thread' is not a joinable thread.
+		ESRCH: No thread with the ID 'thread' could be found.
+
+Concepts:
+	- Race condition: Described above
+	- Deadlock: There are multiple mutexes and threads and there is a situation
+		in which all thread is waiting for a mutex that they do not own
+		themselves. This leads to a state where each thread is just waiting for
+		the mutexes forever.
+	- Semaphore: acts kind of similarly to mutexes
+		- first initialize the semaphore to some value X
+		- there are two functions, call them semaphore_wait and semaphore_post
+		- whenever a thread hits a semaphore_wait, it checks for the semaphore's
+			value:
+				- if it's 0, it waits until it isn't.
+				- if it's greater than 0, it decrements it and executes the code
+					after it.
+			whenever the semaphore_post call is reached, it increments the
+			semaphore by 1.
+		- use case is kind of similar to mutexes if we have initialized the
+			semaphore with a value of 1.
+			- Difference is that mutex has a concept of ownership to them associated,
+				as to say, if one thread locks and the other thread unlocks the same
+				mutex, we will have undefinied behavior if the other thread is unlocking the
+				same mutex multiple times.
+		Practical use  of a semaphore: Login Queue
