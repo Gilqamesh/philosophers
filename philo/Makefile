@@ -6,7 +6,8 @@ ODIR = objects
 HDIR = headers
 NAME = philo
 SRC = philo_main.c philo_init_mystruct.c philo_utils.c philo_threads.c \
-philo_routine.c
+philo_routine.c philo_nodbin_functions.c philo_queue_functions.c \
+philo_print_functions.c
 
 $(NAME): $(foreach file,$(SRC:.c=.o),$(ODIR)/$(file))
 	$(CC) -o $@ $(LFLAGS) $(foreach file,$(SRC:.c=.o),$(ODIR)/$(file))

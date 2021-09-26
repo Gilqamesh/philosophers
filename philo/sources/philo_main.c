@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 11:51:43 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/25 15:02:04 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 18:11:43 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int	main(int argc, char **argv)
 {
 	t_philosophers	mystruct;
 
+	philo_get_mystruct(&mystruct);
 	if (argc != 5 && argc != 6)
 		return (1);
 	if (philo_check_arg_syntax(argc, argv))

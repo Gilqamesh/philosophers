@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/25 21:47:44 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 19:48:40 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,9 +79,10 @@ bool	philo_is_valid_positive_number(char *str)
 }
 
 /*
-** Calculates the difference in milliseconds between 'current' and 'previous'.
+** Calculates the difference in microseconds between 'current' and 'previous'.
 */
-int	philo_calc_ms_difference(struct timeval *current, struct timeval *previous)
+long int	philo_calc_microseconds_difference(struct timeval *current,
+struct timeval *previous)
 {
 	return ((current->tv_sec - previous->tv_sec) * 1000000 + current->tv_usec
 		- previous->tv_usec);
@@ -134,11 +135,82 @@ int	philo_try_malloc(void **ret, int size)
 }
 
 /*
-** Updates most hungry philosopher's index and time till starvation.
-** This function should be updated each time before the reaper sleeps.
-** Returns 1 
+** This function updates the queue ADT.
+** Returns the hungriest philosopher's timestamp.
 */
-// int	philo_update_most_hungry()
+// int	philo_update_queue_of_hungry_philosophers(t_node_binary *node,
+// int new_timestamp)
 // {
-// 	return ()
+// 	return ();
 // }
+
+/*
+** Returns in microseconds the sum value in 't'.
+*/
+long int	philo_timval_to_microseconds(struct timeval *t)
+{
+	if (t == NULL)
+		return (-1);
+	return (t->tv_sec * 1000000 + t->tv_usec);
+}
+
+/*
+** Allocates and return 't_philo_eat_info*' initialized with its arguments.
+*/
+t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp)
+{
+	t_philo_eat_info	*ret;
+
+	ret = malloc(sizeof(*ret));
+	if (ret == NULL)
+		return (NULL);
+	ret->philosopher_index = philo_index;
+	ret->finished_eating_at_timestamp = timestamp;
+	return (ret);
+}
+
+/*
+** Adds 't1' and 't2' and returns it in microseconds.
+*/
+long int	philo_add_timeval(struct timeval *t1, struct timeval *t2)
+{
+	return ((t1->tv_sec + t2->tv_sec) * 1000000 + t1->tv_usec + t2->tv_usec);
+}
+
+/*
+** First call it with argument to initialize the function's static variables.
+** After the first call the function will return the initialized 'mystruct'.
+*/
+t_philosophers	*philo_get_mystruct(t_philosophers *mystruct)
+{
+	static t_philosophers	*ptr;
+	static bool				is_first_call = true;
+
+	if (is_first_call == true)
+	{
+		ptr = mystruct;
+		is_first_call = false;
+	}
+	return (ptr);
+}
+
+/*
+** Updates last finished eating timestamp for 'pinfo'.
+** Updates the queue of timestamps.
+*/
+void	philo_enqueue(t_philosopher_info *pinfo)
+{
+	struct timeval	cur_time;
+
+	gettimeofday(&cur_time, NULL);
+	pinfo->last_finished_eating_timestamp
+		= philo_calc_microseconds_difference(&cur_time,
+		pinfo->reference_to_start_time);
+	pthread_mutex_lock(pinfo->reference_to_time_left_lst_mutex);
+	ft_fifonodbinenqueue(pinfo->time_left_till_starvation_lst,
+		ft_nodbinnew(philo_new_philo_info(pinfo->philosopher_number - 1,
+		pinfo->last_finished_eating_timestamp)));
+	// printf("After enqueue:\n");
+	// ft_nodbinprint(*pinfo->time_left_till_starvation_lst);
+	pthread_mutex_unlock(pinfo->reference_to_time_left_lst_mutex);
+}
