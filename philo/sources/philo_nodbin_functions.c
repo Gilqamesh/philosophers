@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 12:29:03 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 19:12:34 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 20:22:34 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ void	ft_nodbinprint(t_node_binary *lst)
 	{
 		printf("Philosopher number: %d, finished at eating timestamp: %ld\n",
 			((t_philo_eat_info *)lst->content)->philosopher_index + 1,
-			((t_philo_eat_info *)lst->content)->finished_eating_at_timestamp / 1000);
+			((t_philo_eat_info *)lst->content)->last_meal_timestamp / 1000);
 		lst = lst->next;
 	}
 	printf("List end\n");

@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 18:45:12 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 20:19:50 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,11 +42,11 @@ typedef struct s_node_binary
 	struct s_node_binary	*prev;
 }	t_node_binary;
 
-// 'finished_eating_at_timestamp' is in milliseconds
+// 'last_meal_timestamp' is in milliseconds
 typedef struct s_philo_eat_info
 {
 	int			philosopher_index;
-	long int	finished_eating_at_timestamp;
+	long int	last_meal_timestamp;
 }	t_philo_eat_info;
 
 typedef struct s_philo_fork
@@ -77,9 +77,9 @@ typedef struct s_philosopher_info
 	t_philo_fork			*reference_to_right_fork;
 	struct timeval			*reference_to_start_time;
 	long int				start_timestamp_in_microseconds;
-	long int				last_finished_eating_timestamp;
-	pthread_mutex_t			*reference_to_time_left_lst_mutex;
-	t_node_binary			**time_left_till_starvation_lst;
+	long int				last_meal_timestamp;
+	pthread_mutex_t			*reference_to_meal_timestamps_mutex;
+	t_node_binary			**meal_timestamps;
 	pthread_mutex_t			*reference_to_start_mutex;
 }	t_philosopher_info;
 
@@ -96,7 +96,7 @@ typedef struct s_philosophers
 	t_philo_fork		*forks;
 	struct timeval		start_time;
 	pthread_mutex_t		*start_mutexes;
-	t_node_binary		*time_left_till_starvation_lst;
+	t_node_binary		*meal_timestamps;
 	t_node_binary		*first_in_queue;
 	pthread_mutex_t		time_left_lst_mutex;
 	pthread_t			reaper_thread;

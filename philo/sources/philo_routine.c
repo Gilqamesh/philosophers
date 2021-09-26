@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 14:24:55 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 19:59:07 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 20:22:07 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	*reaper_routine(void *mystructPtr)
 	{
 		pthread_mutex_lock(&mystruct->time_left_lst_mutex);
 		next_in_queue = ft_fifonodbindequeue(
-			&mystruct->time_left_till_starvation_lst,
+			&mystruct->meal_timestamps,
 			mystruct->first_in_queue);
 		if (next_in_queue == NULL)
 		{
@@ -43,10 +43,10 @@ void	*reaper_routine(void *mystructPtr)
 			continue ;
 		}
 		// printf("After dequeue:\n");
-		// ft_nodbinprint(mystruct->time_left_till_starvation_lst);
+		// ft_nodbinprint(mystruct->meal_timestamps);
 		mystruct->first_in_queue = next_in_queue->prev;
 		if (mystruct->array_of_philosophers[((t_philo_eat_info *)next_in_queue->content)->philosopher_index]
-			.last_finished_eating_timestamp != ((t_philo_eat_info *)next_in_queue->content)->finished_eating_at_timestamp)
+			.last_meal_timestamp != ((t_philo_eat_info *)next_in_queue->content)->last_meal_timestamp)
 		{
 			// If the philosopher has already eaten, we can continue to the next
 			// philosopher in queue.
@@ -57,7 +57,7 @@ void	*reaper_routine(void *mystructPtr)
 		gettimeofday(&cur_time, NULL);
 		timestamp = philo_calc_microseconds_difference(&cur_time, &mystruct->start_time);
 		tmp = mystruct->time_to_die * 1000 - (timestamp
-			- ((t_philo_eat_info *)next_in_queue->content)->finished_eating_at_timestamp);
+			- ((t_philo_eat_info *)next_in_queue->content)->last_meal_timestamp);
 		pthread_mutex_unlock(&mystruct->time_left_lst_mutex);
 		if (tmp < 0)
 		{
@@ -69,7 +69,7 @@ void	*reaper_routine(void *mystructPtr)
 		}
 		usleep(tmp);
 		if (mystruct->array_of_philosophers[((t_philo_eat_info *)next_in_queue->content)->philosopher_index]
-			.last_finished_eating_timestamp == ((t_philo_eat_info *)next_in_queue->content)->finished_eating_at_timestamp)
+			.last_meal_timestamp == ((t_philo_eat_info *)next_in_queue->content)->last_meal_timestamp)
 		{
 			pthread_mutex_lock(&mystruct->time_left_lst_mutex);
 			philo_print_status(((t_philo_eat_info *)next_in_queue->content)
@@ -117,9 +117,9 @@ void	*philo_routine(void *info)
 			philo_print_status(pinfo->philosopher_number, PHILO_IS_EATING);
 			if (pinfo->number_of_meals_needed != CANT_STOP_EATING)
 				pinfo->number_of_meals_needed--;
+			philo_enqueue(pinfo);
 			usleep(pinfo->time_to_eat);
 			// Stop eating
-			philo_enqueue(pinfo);
 			//
 			pthread_mutex_lock(&pinfo->set_of_forks.reference_to_left_fork->is_available_mutex);
 			pinfo->set_of_forks.reference_to_left_fork->is_available = true;
@@ -163,9 +163,9 @@ void	*philo_routine(void *info)
 			philo_print_status(pinfo->philosopher_number, PHILO_IS_EATING);
 			if (pinfo->number_of_meals_needed != CANT_STOP_EATING)
 				pinfo->number_of_meals_needed--;
+			philo_enqueue(pinfo);
 			usleep(pinfo->time_to_eat);
 			// Stop eating
-			philo_enqueue(pinfo);
 			//
 			pthread_mutex_lock(&pinfo->reference_to_right_fork->is_available_mutex);
 			pinfo->reference_to_right_fork->is_available = true;
@@ -203,9 +203,9 @@ void	*philo_routine(void *info)
 			philo_print_status(pinfo->philosopher_number, PHILO_IS_EATING);
 			if (pinfo->number_of_meals_needed != CANT_STOP_EATING)
 				pinfo->number_of_meals_needed--;
+			philo_enqueue(pinfo);
 			usleep(pinfo->time_to_eat);
 			// Stop eating
-			philo_enqueue(pinfo);
 			//
 			pthread_mutex_lock(&pinfo->reference_to_left_fork->is_available_mutex);
 			pinfo->reference_to_left_fork->is_available = true;
@@ -229,7 +229,7 @@ void	*philo_routine(void *info)
 		timestamp = philo_calc_microseconds_difference(&cur_time,
 				pinfo->reference_to_start_time);
 		time_left = pinfo->time_to_die - (timestamp
-			- pinfo->last_finished_eating_timestamp);
+			- pinfo->last_meal_timestamp);
 		// Wait for time_left till starvation / 10.
 		usleep(time_left / 100);
 	}

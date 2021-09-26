@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 19:51:15 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 20:08:55 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,9 @@ static void	init_philosophers_array(t_philosophers *mystruct)
 			= &mystruct->forks[i];
 		mystruct->array_of_philosophers[i].reference_to_start_time
 				= &mystruct->start_time;
-		mystruct->array_of_philosophers[i].time_left_till_starvation_lst
-				= &mystruct->time_left_till_starvation_lst;
-		mystruct->array_of_philosophers[i].reference_to_time_left_lst_mutex
+		mystruct->array_of_philosophers[i].meal_timestamps
+				= &mystruct->meal_timestamps;
+		mystruct->array_of_philosophers[i].reference_to_meal_timestamps_mutex
 				= &mystruct->time_left_lst_mutex;
 		mystruct->array_of_philosophers[i].reference_to_start_mutex
 				= &mystruct->start_mutexes[i];
@@ -160,8 +160,8 @@ int	philo_destroy_mystruct(t_philosophers *mystruct)
 		pthread_mutex_destroy(&mystruct->forks[i].is_available_mutex);
 	}
 	philo_my_free((void **)&mystruct->forks);
-	// ft_nodbinprint(mystruct->time_left_till_starvation_lst);
-	ft_nodbinclear(&mystruct->time_left_till_starvation_lst, ft_nodbindel, -1);
+	// ft_nodbinprint(mystruct->meal_timestamps);
+	ft_nodbinclear(&mystruct->meal_timestamps, ft_nodbindel, -1);
 	pthread_mutex_unlock(&mystruct->print_mutex);
 	pthread_mutex_destroy(&mystruct->print_mutex);
 	pthread_mutex_unlock(&mystruct->time_left_lst_mutex);

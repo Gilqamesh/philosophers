@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 19:48:40 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/26 20:19:57 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp)
 	if (ret == NULL)
 		return (NULL);
 	ret->philosopher_index = philo_index;
-	ret->finished_eating_at_timestamp = timestamp;
+	ret->last_meal_timestamp = timestamp;
 	return (ret);
 }
 
@@ -195,7 +195,8 @@ t_philosophers	*philo_get_mystruct(t_philosophers *mystruct)
 }
 
 /*
-** Updates last finished eating timestamp for 'pinfo'.
+** This function is called before eating.
+** Updates last meal timestamp for 'pinfo'.
 ** Updates the queue of timestamps.
 */
 void	philo_enqueue(t_philosopher_info *pinfo)
@@ -203,14 +204,12 @@ void	philo_enqueue(t_philosopher_info *pinfo)
 	struct timeval	cur_time;
 
 	gettimeofday(&cur_time, NULL);
-	pinfo->last_finished_eating_timestamp
-		= philo_calc_microseconds_difference(&cur_time,
-		pinfo->reference_to_start_time);
-	pthread_mutex_lock(pinfo->reference_to_time_left_lst_mutex);
-	ft_fifonodbinenqueue(pinfo->time_left_till_starvation_lst,
+	pinfo->last_meal_timestamp = philo_timval_to_microseconds(&cur_time);
+	pthread_mutex_lock(pinfo->reference_to_meal_timestamps_mutex);
+	ft_fifonodbinenqueue(pinfo->meal_timestamps,
 		ft_nodbinnew(philo_new_philo_info(pinfo->philosopher_number - 1,
-		pinfo->last_finished_eating_timestamp)));
+		pinfo->last_meal_timestamp)));
 	// printf("After enqueue:\n");
-	// ft_nodbinprint(*pinfo->time_left_till_starvation_lst);
-	pthread_mutex_unlock(pinfo->reference_to_time_left_lst_mutex);
+	// ft_nodbinprint(*pinfo->meal_timestamps);
+	pthread_mutex_unlock(pinfo->reference_to_meal_timestamps_mutex);
 }
