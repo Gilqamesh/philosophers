@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 14:13:34 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 17:24:18 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 19:02:53 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ int	philo_init_threads(t_philosophers *mystruct, t_threads *threads)
 	int	i;
 	int	ret;
 
-	printf("My pointer is: %p\n", philo_get_mystruct(mystruct));
-	printf("My pointer is: %p\n", philo_get_mystruct(NULL));
 	if (philo_try_malloc((void **)&threads->philosopher_threads,
 		mystruct->n_of_philosophers * sizeof(*threads->philosopher_threads)))
 		return (philo_destroy_mystruct(mystruct));
@@ -60,6 +58,7 @@ int	philo_join_threads(t_philosophers *mystruct, t_threads *threads)
 	int	i;
 
 	ret = pthread_join(threads->reaper_thread, NULL);
+	printf("Reaper has finished\n");
 	if (ret)
 	{
 		PRINT_HERE();
@@ -69,7 +68,6 @@ int	philo_join_threads(t_philosophers *mystruct, t_threads *threads)
 	while (++i < mystruct->n_of_philosophers)
 	{
 		ret = pthread_join(threads->philosopher_threads[i], NULL);
-		PRINT_HERE();
 		printf("Philosopher number (%d) has finished\n", i + 1);
 		if (ret)
 		{

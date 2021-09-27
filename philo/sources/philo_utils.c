@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 17:30:53 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 20:13:12 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp)
 	if (ret == NULL)
 		return (NULL);
 	ret->philosopher_index = philo_index;
-	ret->last_meal_timestamp = timestamp;
+	ret->last_eat_timestamp = timestamp;
 	return (ret);
 }
 
@@ -201,11 +201,11 @@ t_philosophers	*philo_get_mystruct(t_philosophers *mystruct)
 */
 void	philo_enqueue(t_philosopher_info *pinfo, struct timeval *cur_time)
 {
-	pinfo->last_meal_timestamp = philo_timval_to_microseconds(cur_time);
+	pinfo->last_eat_timestamp = philo_timval_to_microseconds(cur_time);
 	pthread_mutex_lock(pinfo->reference_to_meal_timestamps_mutex);
 	ft_fifonodbinenqueue(pinfo->meal_timestamps,
 		ft_nodbinnew(philo_new_philo_info(pinfo->philosopher_number - 1,
-		pinfo->last_meal_timestamp)));
+		pinfo->last_eat_timestamp)));
 	// printf("After enqueue:\n");
 	// ft_nodbinprint(*pinfo->meal_timestamps);
 	pthread_mutex_unlock(pinfo->reference_to_meal_timestamps_mutex);
@@ -233,7 +233,7 @@ void	philo_unlock_all_forks(t_philosophers *mystruct)
 	int	j;
 
 	j = -1;
-	while (++j < 100)
+	while (++j < 3)
 	{
 		i = -1;
 		while (++i < mystruct->n_of_philosophers)
@@ -246,8 +246,6 @@ void	philo_unlock_all_forks(t_philosophers *mystruct)
 			}
 			pthread_mutex_unlock(&mystruct->forks[i].is_available_mutex);
 		}
-		printf("%ld\n", long_int_max_of(mystruct->time_to_die * 1000,
-			mystruct->time_to_sleep * 1000));
 		usleep(long_int_max_of(mystruct->time_to_die * 1000,
 			mystruct->time_to_sleep * 1000));
 	}
@@ -261,4 +259,44 @@ long int	long_int_max_of(long int a, long int b)
 	if (a > b)
 		return (a);
 	return (b);
+}
+
+/*
+** Takes in as parameter in microsececonds a timestamp in milliseconds.
+*/
+void	philo_sleep_until_timestamp(long int timestamp)
+{
+	static t_philosophers	*mystruct;
+	static bool				first_call = true;
+
+	if (first_call == true)
+	{
+		mystruct = philo_get_mystruct(NULL);
+		first_call = false;
+	}
+	while (1)
+	{
+		if (timestamp - philo_timval_to_microseconds(&mystruct->start_time)
+			<= philo_get_current_timestamp() - 100)
+			return ;
+		usleep(100);
+	}
+}
+
+/*
+** Returns the current timestamp in microseconds compared to start.
+*/
+long int	philo_get_current_timestamp(void)
+{
+	static t_philosophers	*mystruct;
+	static bool				first_call = true;
+	struct timeval			cur;
+
+	if (first_call == true)
+	{
+		mystruct = philo_get_mystruct(NULL);
+		first_call = false;
+	}
+	gettimeofday(&cur, NULL);
+	return (philo_calc_microseconds_difference(&cur, &mystruct->start_time));
 }

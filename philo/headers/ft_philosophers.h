@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 17:15:55 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 19:47:14 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,11 @@ typedef struct s_node_binary
 	struct s_node_binary	*prev;
 }	t_node_binary;
 
-// 'last_meal_timestamp' is in milliseconds
+// 'last_eat_timestamp' is in milliseconds
 typedef struct s_philo_eat_info
 {
 	int			philosopher_index;
-	long int	last_meal_timestamp;
+	long int	last_eat_timestamp;
 }	t_philo_eat_info;
 
 typedef struct s_philo_fork
@@ -76,7 +76,8 @@ typedef struct s_philosopher_info
 	t_philo_fork			*reference_to_left_fork;
 	t_philo_fork			*reference_to_right_fork;
 	struct timeval			*reference_to_start_time;
-	long int				last_meal_timestamp;
+	long int				last_eat_timestamp;
+	long int				last_think_start_timestamp;
 	pthread_mutex_t			*reference_to_meal_timestamps_mutex;
 	t_node_binary			**meal_timestamps;
 	pthread_mutex_t			*reference_to_start_mutex;
@@ -149,6 +150,8 @@ void				philo_enqueue(t_philosopher_info *pinfo,
 bool				philo_is_game_over(t_philosophers *mystruct);
 void				philo_unlock_all_forks(t_philosophers *mystruct);
 long int			long_int_max_of(long int a, long int b);
+long int			philo_get_current_timestamp(void);
+void				philo_sleep_until_timestamp(long int timestamp);
 
 // t_node_binary functions
 
@@ -169,6 +172,6 @@ bool				ft_fifolst_is_empty(t_node_binary *lst);
 // print functions
 
 int					philo_print_status(int philosopher_number,
-						enum e_philosopher_status, struct timeval *cur_time);
+						enum e_philosopher_status, long int timestamp);
 
 #endif

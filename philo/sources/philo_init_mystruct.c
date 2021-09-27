@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 14:19:55 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 19:03:59 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ static int	philo_init_mutexes(t_philosophers *mystruct)
 int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 {
 	memset(mystruct, 0, sizeof(*mystruct));
+	philo_get_mystruct(mystruct);
 	mystruct->game_over = false;
 	mystruct->n_of_philosophers = philo_atoi(argv[1]);
 	mystruct->time_to_die = philo_atoi(argv[2]);

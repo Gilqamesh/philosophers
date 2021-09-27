@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 18:13:08 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 17:22:31 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 20:06:06 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,21 +16,25 @@
 ** Returns 1 if game is over. 0 otherwise.
 */
 int	philo_print_status(int philosopher_number,
-enum e_philosopher_status philo_status, struct timeval *cur_time)
+enum e_philosopher_status philo_status, long int timestamp)
 {
 	static t_philosophers	*mystruct;
-	long int				timestamp;
+	static long int			start_timestamp;
+	static bool				first_called = true;
 
-	if (mystruct == NULL)
-		mystruct = philo_get_mystruct(NULL);
-	if (philo_is_game_over(mystruct) == true)
+	if (first_called == true)
 	{
-		printf("Hello from philosopher number: (%d)\n", philosopher_number);
-		return (1);
+		first_called = false;
+		mystruct = philo_get_mystruct(NULL);
+		start_timestamp = philo_timval_to_microseconds(&mystruct->start_time);
 	}
 	pthread_mutex_lock(&mystruct->print_mutex);
-	timestamp = philo_calc_microseconds_difference(cur_time,
-		&mystruct->start_time) / 1000;
+	if (philo_is_game_over(mystruct) == true)
+	{
+		pthread_mutex_unlock(&mystruct->print_mutex);
+		return (1);
+	}
+	timestamp = (timestamp - start_timestamp) / 1000;
 	if (philo_status == PHILO_IS_EATING)
 		printf("%ld %d is eating\n", timestamp, philosopher_number);
 	else if (philo_status == PHILO_IS_SLEEPING)
