@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 20:08:55 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 14:19:55 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,47 +41,37 @@ static int	init_forks(t_philosophers *mystruct)
 */
 static void	init_philosophers_array(t_philosophers *mystruct)
 {
-	int	i;
+	int					i;
+	t_philosopher_info	*cur_philo;
 
 	i = -1;
 	while (++i < mystruct->n_of_philosophers)
 	{
-		mystruct->array_of_philosophers[i].philosopher_number = i + 1;
-		mystruct->array_of_philosophers[i].time_to_die
+		cur_philo = &mystruct->array_of_philosophers[i];
+		cur_philo->philosopher_number = i + 1;
+		cur_philo->time_to_die
 			= mystruct->time_to_die * 1000;
-		mystruct->array_of_philosophers[i].time_to_eat
+		cur_philo->time_to_eat
 			= mystruct->time_to_eat * 1000;
-		mystruct->array_of_philosophers[i].time_to_sleep
+		cur_philo->time_to_sleep
 			= mystruct->time_to_sleep * 1000;
-		mystruct->array_of_philosophers[i].number_of_meals_needed
+		cur_philo->number_of_meals_needed
 				= mystruct->n_of_times_each_philosopher_must_eat;
-		mystruct->array_of_philosophers[i].set_of_forks.is_available = true;
-		mystruct->array_of_philosophers[i].set_of_forks.reference_to_right_fork = &mystruct->forks[i];
 		if (i == mystruct->n_of_philosophers - 1)
-		{
-			mystruct->array_of_philosophers[i].set_of_forks.reference_to_left_fork
+			cur_philo->reference_to_left_fork
 				= &mystruct->forks[0];
-			mystruct->array_of_philosophers[i].reference_to_left_fork
-				= &mystruct->forks[0];
-		}
 		else
-		{
-			mystruct->array_of_philosophers[i].set_of_forks.reference_to_left_fork
+			cur_philo->reference_to_left_fork
 				= &mystruct->forks[i + 1];
-			mystruct->array_of_philosophers[i].reference_to_left_fork
-				= &mystruct->forks[i + 1];
-		}
-		pthread_mutex_init(&mystruct->array_of_philosophers[i]
-				.set_of_forks.is_available_mutex, NULL);
-		mystruct->array_of_philosophers[i].reference_to_right_fork
+		cur_philo->reference_to_right_fork
 			= &mystruct->forks[i];
-		mystruct->array_of_philosophers[i].reference_to_start_time
+		cur_philo->reference_to_start_time
 				= &mystruct->start_time;
-		mystruct->array_of_philosophers[i].meal_timestamps
+		cur_philo->meal_timestamps
 				= &mystruct->meal_timestamps;
-		mystruct->array_of_philosophers[i].reference_to_meal_timestamps_mutex
+		cur_philo->reference_to_meal_timestamps_mutex
 				= &mystruct->time_left_lst_mutex;
-		mystruct->array_of_philosophers[i].reference_to_start_mutex
+		cur_philo->reference_to_start_mutex
 				= &mystruct->start_mutexes[i];
 	}
 }
@@ -118,6 +108,7 @@ static int	philo_init_mutexes(t_philosophers *mystruct)
 int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 {
 	memset(mystruct, 0, sizeof(*mystruct));
+	mystruct->game_over = false;
 	mystruct->n_of_philosophers = philo_atoi(argv[1]);
 	mystruct->time_to_die = philo_atoi(argv[2]);
 	mystruct->time_to_eat = philo_atoi(argv[3]);
@@ -127,9 +118,6 @@ int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 		mystruct->n_of_times_each_philosopher_must_eat = philo_atoi(argv[5]);
 	if (philo_try_calloc((void **)&mystruct->array_of_philosophers,
 		mystruct->n_of_philosophers, sizeof(*mystruct->array_of_philosophers)))
-		return (philo_destroy_mystruct(mystruct));
-	if (philo_try_malloc((void **)&mystruct->philosopher_threads,
-		mystruct->n_of_philosophers * sizeof(*mystruct->philosopher_threads)))
 		return (philo_destroy_mystruct(mystruct));
 	if (init_forks(mystruct))
 		return (philo_destroy_mystruct(mystruct));
@@ -147,12 +135,7 @@ int	philo_destroy_mystruct(t_philosophers *mystruct)
 {
 	int	i;
 
-	i = -1;
-	while (++i < mystruct->n_of_philosophers)
-		pthread_mutex_destroy(&mystruct->array_of_philosophers[i]
-			.set_of_forks.is_available_mutex);
 	philo_my_free((void **)&mystruct->array_of_philosophers);
-	philo_my_free((void **)&mystruct->philosopher_threads);
 	i = -1;
 	while (++i < mystruct->n_of_philosophers)
 	{
@@ -162,10 +145,10 @@ int	philo_destroy_mystruct(t_philosophers *mystruct)
 	philo_my_free((void **)&mystruct->forks);
 	// ft_nodbinprint(mystruct->meal_timestamps);
 	ft_nodbinclear(&mystruct->meal_timestamps, ft_nodbindel, -1);
-	pthread_mutex_unlock(&mystruct->print_mutex);
-	pthread_mutex_destroy(&mystruct->print_mutex);
 	pthread_mutex_unlock(&mystruct->time_left_lst_mutex);
 	pthread_mutex_destroy(&mystruct->time_left_lst_mutex);
+	pthread_mutex_unlock(&mystruct->print_mutex);
+	pthread_mutex_destroy(&mystruct->print_mutex);
 	memset(mystruct, 0, sizeof(*mystruct));
 	return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 14:13:34 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 18:58:38 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 17:24:18 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,23 @@
 ** Creates threads for each philosopher.
 ** Returns 0 on success, 1 on failure.
 */
-int	philo_init_threads(t_philosophers *mystruct)
+int	philo_init_threads(t_philosophers *mystruct, t_threads *threads)
 {
 	int	i;
 	int	ret;
 
+	printf("My pointer is: %p\n", philo_get_mystruct(mystruct));
+	printf("My pointer is: %p\n", philo_get_mystruct(NULL));
+	if (philo_try_malloc((void **)&threads->philosopher_threads,
+		mystruct->n_of_philosophers * sizeof(*threads->philosopher_threads)))
+		return (philo_destroy_mystruct(mystruct));
 	i = -1;
 	while (++i < mystruct->n_of_philosophers)
 		pthread_mutex_lock(&mystruct->start_mutexes[i]);
 	i = -1;
 	while (++i < mystruct->n_of_philosophers)
 	{
-		ret = pthread_create(&mystruct->philosopher_threads[i], NULL,
+		ret = pthread_create(&threads->philosopher_threads[i], NULL,
 				&philo_routine, &mystruct->array_of_philosophers[i]);
 		if (ret)
 		{
@@ -35,7 +40,7 @@ int	philo_init_threads(t_philosophers *mystruct)
 			return (philo_destroy_mystruct(mystruct));
 		}
 	}
-	ret = pthread_create(&mystruct->reaper_thread, NULL,
+	ret = pthread_create(&threads->reaper_thread, NULL,
 		&reaper_routine, mystruct);
 	if (ret)
 	{
@@ -49,25 +54,27 @@ int	philo_init_threads(t_philosophers *mystruct)
 ** Waits for the threads to finish execution.
 ** Returns 0 on success, 1 on failure.
 */
-int	philo_join_threads(t_philosophers *mystruct)
+int	philo_join_threads(t_philosophers *mystruct, t_threads *threads)
 {
-	int	i;
 	int	ret;
+	int	i;
 
-	ret = pthread_join(mystruct->reaper_thread, NULL);
+	ret = pthread_join(threads->reaper_thread, NULL);
 	if (ret)
 	{
 		PRINT_HERE();
-		return (philo_destroy_mystruct(mystruct));
+		return (ret);
 	}
 	i = -1;
 	while (++i < mystruct->n_of_philosophers)
 	{
-		ret = pthread_detach(mystruct->philosopher_threads[i]);
+		ret = pthread_join(threads->philosopher_threads[i], NULL);
+		PRINT_HERE();
+		printf("Philosopher number (%d) has finished\n", i + 1);
 		if (ret)
 		{
 			PRINT_HERE();
-			return (philo_destroy_mystruct(mystruct));
+			return (ret);
 		}
 	}
 	return (0);

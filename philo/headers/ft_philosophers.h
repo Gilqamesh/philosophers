@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 20:19:50 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 17:15:55 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # define CANT_STOP_EATING -1
 // debugging
 # define PRINT_HERE() (printf("Line: %d, file: %s\n", __LINE__, __FILE__))
+# define PRINT_PHILO() (printf("Line: %d, file: %s, philo number: (%d)\n", __LINE__, __FILE__, pinfo->philosopher_number))
 
 enum e_philosopher_status
 {
@@ -72,11 +73,9 @@ typedef struct s_philosopher_info
 	long int				time_to_eat;
 	long int				time_to_sleep;
 	int						number_of_meals_needed;
-	t_philo_set_of_forks	set_of_forks;
 	t_philo_fork			*reference_to_left_fork;
 	t_philo_fork			*reference_to_right_fork;
 	struct timeval			*reference_to_start_time;
-	long int				start_timestamp_in_microseconds;
 	long int				last_meal_timestamp;
 	pthread_mutex_t			*reference_to_meal_timestamps_mutex;
 	t_node_binary			**meal_timestamps;
@@ -88,7 +87,6 @@ typedef struct s_philosophers
 {
 	int					n_of_philosophers;
 	t_philosopher_info	*array_of_philosophers;
-	pthread_t			*philosopher_threads;
 	int					time_to_die;
 	int					time_to_eat;
 	int					time_to_sleep;
@@ -99,9 +97,18 @@ typedef struct s_philosophers
 	t_node_binary		*meal_timestamps;
 	t_node_binary		*first_in_queue;
 	pthread_mutex_t		time_left_lst_mutex;
-	pthread_t			reaper_thread;
 	pthread_mutex_t		print_mutex;
+	pthread_mutex_t		game_over_mutex;
+	bool				game_over;
 }	t_philosophers;
+
+typedef struct s_threads
+{
+	pthread_t		reaper_thread;
+	pthread_t		*philosopher_threads;
+	int				n_of_philosophers;
+	pthread_mutex_t	detach_mutex;
+}	t_threads;
 
 // Initializing functions
 
@@ -110,8 +117,12 @@ int					philo_destroy_mystruct(t_philosophers *mystruct);
 
 // Thread functions
 
-int					philo_init_threads(t_philosophers *mystruct);
-int					philo_join_threads(t_philosophers *mystruct);
+int					philo_init_threads(t_philosophers *mystruct,
+						t_threads *threads);
+int					philo_join_threads(t_philosophers *mystruct,
+						t_threads *threads);
+int					philo_detach_threads(t_philosophers *mystruct,
+						t_threads *threads);
 
 // Routines
 
@@ -133,7 +144,11 @@ int					philo_try_calloc(void **ret, int n_of_els, int size_of_el);
 int					philo_try_malloc(void **ret, int size);
 t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp);
 t_philosophers		*philo_get_mystruct(t_philosophers *mystruct);
-void				philo_enqueue(t_philosopher_info *pinfo);
+void				philo_enqueue(t_philosopher_info *pinfo,
+						struct timeval *cur_time);
+bool				philo_is_game_over(t_philosophers *mystruct);
+void				philo_unlock_all_forks(t_philosophers *mystruct);
+long int			long_int_max_of(long int a, long int b);
 
 // t_node_binary functions
 
@@ -153,7 +168,7 @@ bool				ft_fifolst_is_empty(t_node_binary *lst);
 
 // print functions
 
-void				philo_print_status(int philosopher_number,
-						enum e_philosopher_status);
+int					philo_print_status(int philosopher_number,
+						enum e_philosopher_status, struct timeval *cur_time);
 
 #endif

@@ -1,6 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -pthread
 LFLAGS = -pthread
+# CFLAGS += -g -fsanitize=thread
+# LFLAGS += -fsanitize=thread
 SDIR = sources
 ODIR = objects
 HDIR = headers

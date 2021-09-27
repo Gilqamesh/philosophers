@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 20:19:57 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/27 17:30:53 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,12 +199,9 @@ t_philosophers	*philo_get_mystruct(t_philosophers *mystruct)
 ** Updates last meal timestamp for 'pinfo'.
 ** Updates the queue of timestamps.
 */
-void	philo_enqueue(t_philosopher_info *pinfo)
+void	philo_enqueue(t_philosopher_info *pinfo, struct timeval *cur_time)
 {
-	struct timeval	cur_time;
-
-	gettimeofday(&cur_time, NULL);
-	pinfo->last_meal_timestamp = philo_timval_to_microseconds(&cur_time);
+	pinfo->last_meal_timestamp = philo_timval_to_microseconds(cur_time);
 	pthread_mutex_lock(pinfo->reference_to_meal_timestamps_mutex);
 	ft_fifonodbinenqueue(pinfo->meal_timestamps,
 		ft_nodbinnew(philo_new_philo_info(pinfo->philosopher_number - 1,
@@ -212,4 +209,56 @@ void	philo_enqueue(t_philosopher_info *pinfo)
 	// printf("After enqueue:\n");
 	// ft_nodbinprint(*pinfo->meal_timestamps);
 	pthread_mutex_unlock(pinfo->reference_to_meal_timestamps_mutex);
+}
+
+/*
+** Returns 1 if game is over, 0 otherwise.
+*/
+bool	philo_is_game_over(t_philosophers *mystruct)
+{
+	bool	is_game_over;
+
+	pthread_mutex_lock(&mystruct->game_over_mutex);
+	is_game_over = mystruct->game_over;
+	pthread_mutex_unlock(&mystruct->game_over_mutex);
+	return (is_game_over);
+}
+
+/*
+** Unlocks all forks that are currently locked.
+*/
+void	philo_unlock_all_forks(t_philosophers *mystruct)
+{
+	int	i;
+	int	j;
+
+	j = -1;
+	while (++j < 100)
+	{
+		i = -1;
+		while (++i < mystruct->n_of_philosophers)
+		{
+			pthread_mutex_lock(&mystruct->forks[i].is_available_mutex);
+			if (mystruct->forks[i].is_available == false)
+			{
+				pthread_mutex_unlock(&mystruct->forks[i].fork);
+				mystruct->forks[i].is_available = true;
+			}
+			pthread_mutex_unlock(&mystruct->forks[i].is_available_mutex);
+		}
+		printf("%ld\n", long_int_max_of(mystruct->time_to_die * 1000,
+			mystruct->time_to_sleep * 1000));
+		usleep(long_int_max_of(mystruct->time_to_die * 1000,
+			mystruct->time_to_sleep * 1000));
+	}
+}
+
+/*
+** Returns max out of 'a' and 'b'.
+*/
+long int	long_int_max_of(long int a, long int b)
+{
+	if (a > b)
+		return (a);
+	return (b);
 }
