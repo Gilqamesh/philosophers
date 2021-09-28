@@ -1,8 +1,6 @@
-# # Blacklist files/folders in same directory as the .gitignore file
-# /*
-# philo/fork_indexes.png
+# Blacklist files/folders in same directory as the .gitignore file
+/*
 
-# # But not these files/folders
-# !.gitignore
-# !philo/
-socrates/
+# But not these files/folders
+!.gitignore
+!philo/

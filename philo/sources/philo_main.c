@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 11:51:43 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 17:26:25 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/28 19:36:42 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,6 @@ int	main(int argc, char **argv)
 	if (philo_join_threads(&mystruct, &threads))
 		return (1);
 	philo_destroy_mystruct(&mystruct);
-	philo_my_free((void **)&threads.philosopher_threads);
+	philo_my_free((void **)&threads.phThreads);
 	return (0);
 }

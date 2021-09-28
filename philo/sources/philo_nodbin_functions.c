@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 12:29:03 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/27 19:46:57 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/28 17:34:36 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,22 +69,4 @@ void	ft_nodbindel(void *node)
 	if (((t_node_binary *)node)->content)
 		free(((t_node_binary *)node)->content);
 	free(node);
-}
-
-void	ft_nodbinprint(t_node_binary *lst)
-{
-	if (lst == NULL)
-	{
-		printf("List is empty\n");
-		return ;
-	}
-	printf("List start\n");
-	while (lst)
-	{
-		printf("Philosopher number: %d, finished at eating timestamp: %ld\n",
-			((t_philo_eat_info *)lst->content)->philosopher_index + 1,
-			((t_philo_eat_info *)lst->content)->last_eat_timestamp / 1000);
-		lst = lst->next;
-	}
-	printf("List end\n");
 }
