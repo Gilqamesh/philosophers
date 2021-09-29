@@ -6,15 +6,14 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 18:13:08 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 17:47:46 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/29 20:25:49 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ft_philosophers.h"
 
-static int	print_status(t_philosophers *mystruct,
-enum e_philosopher_status philo_status, long int timestamp,
-int phNum)
+static int	print_status(enum e_philosopher_status philo_status,
+long int timestamp, int phNum)
 {
 	if (philo_status == PHEAT)
 		printf("%ld %d is eating\n", timestamp, phNum);
@@ -26,11 +25,7 @@ int phNum)
 		printf("%ld %d has taken a fork\n", timestamp, phNum);
 	else if (philo_status == PHILO_DIED)
 	{
-		pthread_mutex_lock(&mystruct->game_over_mutex);
-		mystruct->game_over = true;
-		pthread_mutex_unlock(&mystruct->game_over_mutex);
 		printf("%ld %d died\n", timestamp, phNum);
-		pthread_mutex_unlock(&mystruct->print_mutex);
 		return (1);
 	}
 	return (0);
@@ -50,21 +45,12 @@ enum e_philosopher_status philo_status, long int timestamp)
 	{
 		first_called = false;
 		mystruct = philo_get_mystruct(NULL);
-		start_timestamp = philo_timval_to_microseconds(&mystruct->start_time)
-			+ INIT_TIME_IN_MICROSECONDS;
-		return (0);
+		start_timestamp = mystruct->startTime;
 	}
-	pthread_mutex_lock(&mystruct->print_mutex);
-	pthread_mutex_lock(&mystruct->game_over_mutex);
-	if (mystruct->game_over == true)
-	{
-		pthread_mutex_unlock(&mystruct->print_mutex);
-		return (1);
-	}
-	pthread_mutex_unlock(&mystruct->game_over_mutex);
+	sem_wait(mystruct->semPrint);
 	timestamp = (timestamp - start_timestamp) / 1000;
-	if (print_status(mystruct, philo_status, timestamp, phNum))
+	if (print_status(philo_status, timestamp, phNum))
 		return (1);
-	pthread_mutex_unlock(&mystruct->print_mutex);
+	sem_post(mystruct->semPrint);
 	return (0);
 }

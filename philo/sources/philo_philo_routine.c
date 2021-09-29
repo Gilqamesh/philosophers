@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 14:24:55 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/28 19:18:01 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/29 18:38:01 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,10 @@ static int	initialize_philo(t_philosopher_info *pinfo)
 	philo_sleep_until_timestamp(pinfo->ateTimestamp);
 	if (pinfo->phNum % 2 == 0)
 	{
-		pinfo->lastThinkTimeStamp += pinfo->time_to_sleep;
+		// This line was:
+		// pinfo->lastThinkTimeStamp += pinfo->time_to_sleep;
+		// Make sure that the below code doesnt break the program!
+		pinfo->lastThinkTimeStamp += pinfo->time_to_eat;
 		if (philo_print_status(pinfo->phNum, PHSL, pinfo->ateTimestamp))
 			return (1);
 		philo_sleep_until_timestamp(pinfo->lastThinkTimeStamp);

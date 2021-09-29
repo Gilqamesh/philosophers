@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:08:46 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/29 20:09:35 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,12 +46,26 @@ bool	philo_is_valid_positive_number(char *str)
 */
 void	philo_enqueue(t_philosopher_info *pinfo, long int timestamp)
 {
-	pthread_mutex_lock(pinfo->ref_queue);
+	static bool	first_called = true;
+	static t_philosophers *mystruct;
+
+	if (first_called == true)
+	{
+		first_called = false;
+		mystruct = philo_get_mystruct(NULL);
+	}
+	sem_wait(mystruct->semQueue);
 	pinfo->ateTimestamp = timestamp;
 	ft_fifonodbinenqueue(pinfo->meal_queue,
 		ft_nodbinnew(philo_new_philo_info(pinfo->phNum - 1,
 				pinfo->ateTimestamp)));
-	pthread_mutex_unlock(pinfo->ref_queue);
+	sem_post(mystruct->semQueue);
+}
+
+sem_t	*philo_sem_init(char *name, unsigned int value)
+{
+	sem_unlink(name);
+	return (sem_open(name, O_CREAT, 0777, value));
 }
 
 /*
@@ -59,24 +73,6 @@ void	philo_enqueue(t_philosopher_info *pinfo, long int timestamp)
 */
 void	philo_unlock_all_forks(t_philosophers *mystruct)
 {
-	int	i;
-	int	j;
-
-	j = -1;
-	while (++j < 3)
-	{
-		i = -1;
-		while (++i < mystruct->phNum)
-		{
-			pthread_mutex_lock(&mystruct->forks[i].is_available_mutex);
-			if (mystruct->forks[i].is_available == false)
-			{
-				pthread_mutex_unlock(&mystruct->forks[i].fork);
-				mystruct->forks[i].is_available = true;
-			}
-			pthread_mutex_unlock(&mystruct->forks[i].is_available_mutex);
-		}
-		usleep(long_int_max_of(mystruct->time_to_die * 1000,
-				mystruct->time_to_sleep * 1000));
-	}
+	sem_post(mystruct->forks);
+	sem_post(mystruct->forks);
 }
