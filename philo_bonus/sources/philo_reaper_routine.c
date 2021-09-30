@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 18:13:58 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:16:14 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 20:07:04 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ t_node_binary *cur)
 {
 	if (cur == NULL)
 	{
+		if (pinfo->stopDeath == true)
+			return (true);
 		philo_print_status(pinfo->phNum, PHILO_DIED, pinfo->ateTimestamp
 			+ pinfo->time_to_die);
 		sem_post(mystruct->semFinish);

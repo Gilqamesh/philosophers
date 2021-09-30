@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:17:00 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 20:10:24 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ typedef struct s_philosopher_info
 	sem_t					*semQueue;
 	char					*semQueueName;
 	bool					hasDoneEating;
+	bool					stopDeath;
 	t_node_binary			*first_in_queue;
 }	t_philosopher_info;
 
@@ -90,6 +91,7 @@ typedef struct s_philosophers
 	int					nOfMeals;
 	long int			startTime;
 	pthread_t			endCondThread;
+	bool				allFinishedEating;
 }	t_philosophers;
 
 // Initializing functions
@@ -101,7 +103,7 @@ int					philo_kill_processes(t_philosophers *mystruct);
 
 // Routines
 
-int					philo_process(t_philosophers *mystruct,
+void				philo_process(t_philosophers *mystruct,
 						t_philosopher_info *pinfo);
 void				*philo_routine(void *info);
 void				*reaper_routine(void *mystructPtr);

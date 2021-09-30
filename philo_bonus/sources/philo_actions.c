@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 18:38:39 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:15:22 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 20:06:32 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,11 @@ t_philosopher_info *pinfo, long int timestamp)
 {
 	philo_enqueue(pinfo, timestamp);
 	if (pinfo->nOfMeals != CANT_STOP_EATING)
+	{
 		pinfo->nOfMeals--;
+		if (pinfo->nOfMeals == 0)
+			pinfo->stopDeath = true;
+	}
 	philo_print_status(pinfo->phNum, PHEAT, timestamp);
 	philo_sleep_until_timestamp(timestamp + pinfo->time_to_eat);
 	sem_post(mystruct->forks);
