@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:17:50 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:21:33 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ static void	init_philosophers_array(t_philosophers *mystruct)
 		cur_philo->ateTimestamp = mystruct->startTime;
 		cur_philo->semQueue = mystruct->semQueue[i];
 		cur_philo->semQueueName = mystruct->semQueueNames[i];
+		cur_philo->semDoneEating = mystruct->semDoneEating[i];
+		cur_philo->semDoneEatingName = mystruct->semDoneEatingNames[i];
 	}
 }
 
@@ -69,10 +71,16 @@ int	philo_kill_processes(t_philosophers *mystruct)
 	int	i;
 
 	sem_wait(mystruct->semFinish);
-	pthread_join(mystruct->endCondThread, NULL);
+	if (mystruct->everyoneHasEaten == true)
+		pthread_join(mystruct->endCondThread, NULL);
 	i = -1;
 	while (++i < mystruct->phNum)
-		kill(mystruct->process_ids[i], SIGABRT);
+	{
+		if (mystruct->everyoneHasEaten == true)
+			waitpid(mystruct->process_ids[i], NULL, -1);
+		else
+			kill(mystruct->process_ids[i], SIGABRT);
+	}
 	return (0);
 }
 
@@ -97,12 +105,20 @@ int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 		mystruct->phNum * sizeof(*mystruct->semQueueNames));
 	philo_try_malloc((void **)&mystruct->semQueue, 
 		mystruct->phNum * sizeof(*mystruct->semQueue));
+	philo_try_malloc((void **)&mystruct->semDoneEating,
+		mystruct->phNum * sizeof(*mystruct->semDoneEating));
+	philo_try_malloc((void **)&mystruct->semDoneEatingNames, 
+		mystruct->phNum * sizeof(*mystruct->semDoneEatingNames));
 	i = -1;
 	while (++i < mystruct->phNum)
 	{
 		mystruct->semQueueNames[i] = ft_strjoin_free(
 			ft_strdup(SEM_QUEUE), ft_itoa(i + 1));
 		mystruct->semQueue[i] = philo_sem_init(mystruct->semQueueNames[i], 1);
+		mystruct->semDoneEatingNames[i] = ft_strjoin_free(
+			ft_strdup(SEM_DONE_EATING), ft_itoa(i + 1));
+		mystruct->semDoneEating[i] = philo_sem_init(
+			mystruct->semDoneEatingNames[i], 1);
 	}
 	mystruct->semPrint = philo_sem_init(SEM_PRINT, 1);
 	mystruct->semFinishedEating = philo_sem_init(SEM_FINISHED_EATING, 0);
@@ -137,9 +153,14 @@ int	philo_destroy_mystruct(t_philosophers *mystruct)
 		sem_close(mystruct->semQueue[i]);
 		sem_unlink(mystruct->semQueueNames[i]);
 		philo_my_free((void **)&mystruct->semQueueNames[i]);
+		sem_close(mystruct->semDoneEating[i]);
+		sem_unlink(mystruct->semDoneEatingNames[i]);
+		philo_my_free((void **)&mystruct->semDoneEatingNames[i]);
 	} 
 	philo_my_free((void **)&mystruct->semQueue);
 	philo_my_free((void **)&mystruct->semQueueNames);
+	philo_my_free((void **)&mystruct->semDoneEating);
+	philo_my_free((void **)&mystruct->semDoneEatingNames);
 	sem_close(mystruct->forks);
 	sem_unlink(SEM_FINISH);
 	sem_unlink(SEM_FINISHED_EATING);

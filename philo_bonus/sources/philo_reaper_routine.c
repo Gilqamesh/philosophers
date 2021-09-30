@@ -6,17 +6,29 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 18:13:58 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:16:14 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:20:22 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ft_philosophers.h"
+
+static bool	has_finished_eating(t_philosopher_info *pinfo)
+{
+	sem_wait(pinfo->semDoneEating);
+	if (pinfo->hasDoneEating == true)
+		return (true);
+	sem_post(pinfo->semDoneEating);
+	return (false);
+}
 
 static bool	has_philo_died(t_philosophers *mystruct, t_philosopher_info *pinfo,
 t_node_binary *cur)
 {
 	if (cur == NULL)
 	{
+		if (pinfo->nOfMeals != CANT_STOP_EATING
+			&& has_finished_eating(pinfo) == true)
+			return (true);
 		philo_print_status(pinfo->phNum, PHILO_DIED, pinfo->ateTimestamp
 			+ pinfo->time_to_die);
 		sem_post(mystruct->semFinish);
@@ -38,6 +50,9 @@ void	*reaper_routine(void *pinfoPtr)
 	while (1)
 	{
 		sem_wait(pinfo->semQueue);
+		if (pinfo->nOfMeals != CANT_STOP_EATING
+			&& has_finished_eating(pinfo) == true)
+			break ;
 		lastAte = ft_fifonodbindequeue(&pinfo->meal_queue,
 			pinfo->first_in_queue);
 		if (has_philo_died(mystruct, pinfo, lastAte) == true)

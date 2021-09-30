@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 15:39:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:18:53 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:21:09 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void	*endCond(void *mystructPtr)
 	i = 1;
 	while (++i < mystruct->phNum)
 		sem_wait(mystruct->semFinishedEating);
+	mystruct->everyoneHasEaten = true;
 	sem_post(mystruct->semFinish);
 	return (NULL);
 }
@@ -54,6 +55,5 @@ int	main(int argc, char **argv)
 	if (philo_kill_processes(&mystruct))
 		return (1);
 	philo_destroy_mystruct(&mystruct);
-	system("leaks philo_bonus");
 	return (0);
 }

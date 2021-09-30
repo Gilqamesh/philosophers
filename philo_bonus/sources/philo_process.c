@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 18:00:47 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:15:54 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:19:29 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@ t_philosopher_info *pinfo)
 	sem_close(mystruct->semPrint);
 	sem_close(mystruct->semFinishedEating);
 	sem_close(pinfo->semQueue);
+	sem_close(pinfo->semDoneEating);
 	ft_nodbinclear(&pinfo->meal_queue, ft_nodbindel, -1);
 	return (0);
 }
 
 static void	init_philo_process(t_philosopher_info *pinfo)
 {
+	sem_open(pinfo->semDoneEatingName, O_CREAT, 0);
 	sem_open(SEM_FORKS, O_CREAT, 0);
 	sem_open(SEM_FINISH, O_CREAT, 0);
 	sem_open(SEM_FINISHED_EATING, O_CREAT, 0);

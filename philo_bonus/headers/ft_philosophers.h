@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:17:00 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:19:40 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ typedef struct s_philosopher_info
 	pthread_t				reaper;
 	sem_t					*semQueue;
 	char					*semQueueName;
+	sem_t					*semDoneEating;
+	char					*semDoneEatingName;
 	bool					hasDoneEating;
 	t_node_binary			*first_in_queue;
 }	t_philosopher_info;
@@ -82,6 +84,8 @@ typedef struct s_philosophers
 	sem_t				*semFinish;
 	sem_t				**semQueue;
 	char				**semQueueNames;
+	sem_t				**semDoneEating;
+	char				**semDoneEatingNames;
 	sem_t				*semPrint;
 	sem_t				*semFinishedEating;
 	int					time_to_die;
@@ -90,6 +94,7 @@ typedef struct s_philosophers
 	int					nOfMeals;
 	long int			startTime;
 	pthread_t			endCondThread;
+	bool				everyoneHasEaten;
 }	t_philosophers;
 
 // Initializing functions
