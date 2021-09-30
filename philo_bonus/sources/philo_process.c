@@ -6,33 +6,40 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 18:00:47 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 21:08:03 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:15:54 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ft_philosophers.h"
 
 static int	exit_philo_process(t_philosophers *mystruct,
-t_philosopher_info *pinfo, int ret)
+t_philosopher_info *pinfo)
 {
-	if (ret != 1)
-		pthread_join(pinfo->reaper, NULL);
-	sem_close(mystruct->semFinish);
-	sem_close(mystruct->semFinishedEating);
-	sem_close(mystruct->semPrint);
-	sem_close(mystruct->semQueue);
+	pthread_join(pinfo->reaper, NULL);
 	sem_close(mystruct->forks);
-	return (ret);
+	sem_close(mystruct->semFinish);
+	sem_close(mystruct->semPrint);
+	sem_close(mystruct->semFinishedEating);
+	sem_close(pinfo->semQueue);
+	ft_nodbinclear(&pinfo->meal_queue, ft_nodbindel, -1);
+	return (0);
+}
+
+static void	init_philo_process(t_philosopher_info *pinfo)
+{
+	sem_open(SEM_FORKS, O_CREAT, 0);
+	sem_open(SEM_FINISH, O_CREAT, 0);
+	sem_open(SEM_FINISHED_EATING, O_CREAT, 0);
+	sem_open(pinfo->semQueueName, O_CREAT, 0);
+	sem_open(SEM_PRINT, O_CREAT, 0);
+	philo_enqueue(pinfo, pinfo->startTime);
 }
 
 int	philo_process(t_philosophers *mystruct, t_philosopher_info *pinfo)
 {
+	init_philo_process(pinfo);
 	if (pthread_create(&pinfo->reaper, NULL, &reaper_routine, pinfo))
-		return (exit_philo_process(mystruct, pinfo, 1));
-	printf("Pid: %d\n", getpid());
-	printf("Hello from child number %d\n", pinfo->phNum);
-	usleep(100);
-	printf("Hello from child number %d\n", pinfo->phNum);
+		return (exit_philo_process(mystruct, pinfo));
 	philo_sleep_until_timestamp(pinfo->startTime);
 	pinfo->lastThinkTimeStamp = pinfo->startTime;
 	if (pinfo->phNum % 2 == 0)
@@ -46,15 +53,15 @@ int	philo_process(t_philosophers *mystruct, t_philosopher_info *pinfo)
 	while (1)
 	{
 		philo_fork(mystruct, pinfo);
-		philo_eat(pinfo, pinfo->ateTimestamp);
+		philo_eat(mystruct, pinfo, pinfo->ateTimestamp);
 		if (pinfo->nOfMeals == 0)
 		{
 			sem_post(mystruct->semFinishedEating);
-			return (exit_philo_process(mystruct, pinfo, 0));
+			return (exit_philo_process(mystruct, pinfo));
 		}
 		philo_sleep(pinfo, pinfo->ateTimestamp + pinfo->time_to_eat);
 		philo_think(pinfo, pinfo->ateTimestamp + pinfo->time_to_eat
 			+ pinfo->time_to_sleep);
 	}
-	return (exit_philo_process(mystruct, pinfo, 0));
+	return (exit_philo_process(mystruct, pinfo));
 }

@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:24:35 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:17:00 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,13 @@
 # define SEM_FORKS "/forks"
 # define SEM_FINISH "/finish"
 # define SEM_QUEUE "/queue"
+# define SEM_DONE_EATING "/doneeating"
 # define SEM_PRINT "/print"
 # define SEM_FINISHED_EATING "/finishedeating"
 // debugging
 # define PRINT_HERE() (printf("Line: %d, file: %s\n", __LINE__, __FILE__))
+// # define PRINT_PHILO() (printf("Line: %d, file: %s, philonum: %d\n",
+// __LINE__, __FILE__, pinfo->phNum))
 
 enum e_philosopher_status
 {
@@ -41,13 +44,6 @@ enum e_philosopher_status
 	PHILO_FORK,
 	PHILO_DIED
 };
-
-// 'ateTimestamp' is in milliseconds
-typedef struct s_philo_eat_info
-{
-	int			philosopher_index;
-	long int	ateTimestamp;
-}	t_philo_eat_info;
 
 typedef struct s_node_binary
 {
@@ -68,8 +64,12 @@ typedef struct s_philosopher_info
 	long int				startTime;
 	long int				ateTimestamp;
 	long int				lastThinkTimeStamp;
-	t_node_binary			**meal_queue;
+	t_node_binary			*meal_queue;
 	pthread_t				reaper;
+	sem_t					*semQueue;
+	char					*semQueueName;
+	bool					hasDoneEating;
+	t_node_binary			*first_in_queue;
 }	t_philosopher_info;
 
 // time_to_die, time_to_eat and time_to_sleep are in milliseconds
@@ -80,7 +80,8 @@ typedef struct s_philosophers
 	pid_t				*process_ids;
 	sem_t				*forks;
 	sem_t				*semFinish;
-	sem_t				*semQueue;
+	sem_t				**semQueue;
+	char				**semQueueNames;
 	sem_t				*semPrint;
 	sem_t				*semFinishedEating;
 	int					time_to_die;
@@ -88,18 +89,8 @@ typedef struct s_philosophers
 	int					time_to_sleep;
 	int					nOfMeals;
 	long int			startTime;
-	t_node_binary		*meal_queue;
-	t_node_binary		*first_in_queue;
 	pthread_t			endCondThread;
 }	t_philosophers;
-
-typedef struct s_threads
-{
-	pthread_t		reaper_thread;
-	pthread_t		*phThreads;
-	int				phNum;
-	pthread_mutex_t	detach_mutex;
-}	t_threads;
 
 // Initializing functions
 
@@ -107,15 +98,6 @@ int					philo_init_mystruct(t_philosophers *mystruct, int argc,
 						char **argv);
 int					philo_destroy_mystruct(t_philosophers *mystruct);
 int					philo_kill_processes(t_philosophers *mystruct);
-
-// Thread functions
-
-int					philo_init_threads(t_philosophers *mystruct,
-						t_threads *threads);
-int					philo_join_threads(t_philosophers *mystruct,
-						t_threads *threads);
-int					philo_detach_threads(t_philosophers *mystruct,
-						t_threads *threads);
 
 // Routines
 
@@ -146,8 +128,6 @@ long int			long_int_max_of(long int a, long int b);
 long int			philo_get_current_timestamp(void);
 void				philo_sleep_until_timestamp(long int timestamp);
 int					ft_strcmp(const char *s1, const char *s2);
-bool				has_philo_died(t_philosophers *mystruct,
-						t_node_binary *cur);
 bool				try_left_fork(t_philosopher_info *pinfo);
 bool				try_right_fork(t_philosopher_info *pinfo,
 						long int timestamp);
@@ -155,13 +135,20 @@ bool				try_eating(t_philosopher_info *pinfo, long int timestamp);
 bool				is_game_over2(t_philosophers *mystruct);
 sem_t				*philo_sem_init(char *name, unsigned int value);
 int					philo_init_processes(t_philosophers *mystruct);
-t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp);
 void				philo_unlock_all_forks(t_philosophers *mystruct);
+int					ft_strlen(const char *s);
+char				*ft_strdup(const char *s);
+size_t				ft_strlcpy(char *dst, const char *src, size_t size);
+char				*ft_strjoin_free(char *s1, char *s2);
+int					ft_intlen(int d);
+char				*ft_itoa(int n);
+long int			*ft_lintdup(long int li);
 
 // Philosopher actions
 void				philo_fork(t_philosophers *mystruct,
 						t_philosopher_info *pinfo);
-void				philo_eat(t_philosopher_info *pinfo, long int timestamp);
+void				philo_eat(t_philosophers *mystruct,
+						t_philosopher_info *pinfo, long int timestamp);
 void				philo_sleep(t_philosopher_info *pinfo, long int timestamp);
 void				philo_think(t_philosopher_info *pinfo, long int timestamp);
 
@@ -180,7 +167,6 @@ void				ft_fifonodbinenqueue(t_node_binary **lst,
 						t_node_binary *new);
 t_node_binary		*ft_fifonodbindequeue(t_node_binary **lst,
 						t_node_binary *nullable_last_node);
-bool				ft_fifolst_is_empty(t_node_binary *lst);
 
 // print functions
 

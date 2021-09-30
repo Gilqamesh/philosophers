@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 18:38:39 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:25:38 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 19:15:22 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,16 @@ void	philo_fork(t_philosophers *mystruct, t_philosopher_info *pinfo)
 	philo_print_status(pinfo->phNum, PHILO_FORK, pinfo->ateTimestamp);
 }
 
-void	philo_eat(t_philosopher_info *pinfo, long int timestamp)
+void	philo_eat(t_philosophers *mystruct,
+t_philosopher_info *pinfo, long int timestamp)
 {
 	philo_enqueue(pinfo, timestamp);
 	if (pinfo->nOfMeals != CANT_STOP_EATING)
 		pinfo->nOfMeals--;
 	philo_print_status(pinfo->phNum, PHEAT, timestamp);
 	philo_sleep_until_timestamp(timestamp + pinfo->time_to_eat);
+	sem_post(mystruct->forks);
+	sem_post(mystruct->forks);
 }
 
 void	philo_sleep(t_philosopher_info *pinfo,

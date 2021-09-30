@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 16:57:06 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/28 19:04:06 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 15:04:23 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,19 +70,4 @@ int	philo_try_malloc(void **ret, int size)
 	if (*ret == NULL)
 		return (1);
 	return (0);
-}
-
-/*
-** Allocates and return 't_philo_eat_info*' initialized with its arguments.
-*/
-t_philo_eat_info	*philo_new_philo_info(int philo_index, long int timestamp)
-{
-	t_philo_eat_info	*ret;
-
-	ret = malloc(sizeof(*ret));
-	if (ret == NULL)
-		return (NULL);
-	ret->philosopher_index = philo_index;
-	ret->ateTimestamp = timestamp;
-	return (ret);
 }

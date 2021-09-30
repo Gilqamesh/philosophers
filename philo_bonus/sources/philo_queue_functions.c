@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/26 12:31:54 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/26 19:48:25 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 15:51:52 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ t_node_binary *nullable_last_node)
 
 	if (lst == NULL || *lst == NULL)
 		return (NULL);
-	if (nullable_last_node)
+	if (nullable_last_node != NULL)
 	{
 		cur = nullable_last_node;
 		if (cur->prev)
@@ -51,14 +51,4 @@ t_node_binary *nullable_last_node)
 	else
 		*lst = NULL;
 	return (cur);
-}
-
-/*
-** Returns true if the queue is empty, false otherwise.
-*/
-bool	ft_fifolst_is_empty(t_node_binary *lst)
-{
-	if (lst == NULL)
-		return (false);
-	return (true);
 }

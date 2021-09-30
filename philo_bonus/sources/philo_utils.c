@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:09:35 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 15:52:29 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,20 +46,11 @@ bool	philo_is_valid_positive_number(char *str)
 */
 void	philo_enqueue(t_philosopher_info *pinfo, long int timestamp)
 {
-	static bool	first_called = true;
-	static t_philosophers *mystruct;
-
-	if (first_called == true)
-	{
-		first_called = false;
-		mystruct = philo_get_mystruct(NULL);
-	}
-	sem_wait(mystruct->semQueue);
+	sem_wait(pinfo->semQueue);
 	pinfo->ateTimestamp = timestamp;
-	ft_fifonodbinenqueue(pinfo->meal_queue,
-		ft_nodbinnew(philo_new_philo_info(pinfo->phNum - 1,
-				pinfo->ateTimestamp)));
-	sem_post(mystruct->semQueue);
+	ft_fifonodbinenqueue(&pinfo->meal_queue,
+		ft_nodbinnew(ft_lintdup(timestamp)));
+	sem_post(pinfo->semQueue);
 }
 
 sem_t	*philo_sem_init(char *name, unsigned int value)
