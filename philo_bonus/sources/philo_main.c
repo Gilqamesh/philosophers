@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 15:39:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 19:21:09 by edavid           ###   ########.fr       */
+/*   Updated: 2021/09/30 20:28:07 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,11 @@ void	*endCond(void *mystructPtr)
 	int				i;
 
 	mystruct = (t_philosophers *)mystructPtr;
-	i = 1;
+	sem_wait(mystruct->semFinish);
+	mystruct->allFinishedEating = false;
+	i = -1;
 	while (++i < mystruct->phNum)
-		sem_wait(mystruct->semFinishedEating);
-	mystruct->everyoneHasEaten = true;
-	sem_post(mystruct->semFinish);
+		sem_post(mystruct->semFinishedEating);
 	return (NULL);
 }
 
@@ -48,8 +48,7 @@ int	main(int argc, char **argv)
 		return (1);
 	if (philo_init_mystruct(&mystruct, argc, argv))
 		return (1);
-	if (mystruct.nOfMeals != CANT_STOP_EATING)
-		pthread_create(&mystruct.endCondThread, NULL, &endCond, &mystruct);
+	pthread_create(&mystruct.endCondThread, NULL, &endCond, &mystruct);
 	if (philo_init_processes(&mystruct))
 		return (1);
 	if (philo_kill_processes(&mystruct))
