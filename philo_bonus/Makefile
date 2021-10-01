@@ -10,7 +10,8 @@ NAME = philo_bonus
 SRC = philo_main.c philo_init_mystruct.c philo_utils.c philo_actions.c \
 philo_nodbin_functions.c philo_queue_functions.c philo_print_functions.c \
 philo_time_utils.c philo_malloc_utils.c philo_libft_utils.c philo_process.c \
-philo_reaper_routine.c
+philo_reaper_routine.c philo_init_mystruct2.c philo_libft_utils2.c \
+philo_libft_utils3.c
 
 $(NAME): $(foreach file,$(SRC:.c=.o),$(ODIR)/$(file))
 	$(CC) -o $@ $(LFLAGS) $(foreach file,$(SRC:.c=.o),$(ODIR)/$(file))

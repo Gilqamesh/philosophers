@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 20:00:13 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 13:43:13 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,13 @@ void	philo_enqueue(t_philosopher_info *pinfo, long int timestamp)
 
 sem_t	*philo_sem_init(char *name, unsigned int value)
 {
+	sem_t	*sem;
+
+	sem = sem_open(name, O_CREAT | O_EXCL, 0644, value);
+	if (sem != SEM_FAILED)
+		return (sem);
 	sem_unlink(name);
-	return (sem_open(name, O_CREAT, 0777, value));
+	return (sem_open(name, O_CREAT | O_EXCL, 0644, value));
 }
 
 /*

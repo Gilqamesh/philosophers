@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 18:13:58 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 20:27:46 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:04:37 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	*reaper_routine(void *pinfoPtr)
 			&& has_finished_eating(pinfo) == true)
 			break ;
 		lastAte = ft_fifonodbindequeue(&pinfo->meal_queue,
-			pinfo->first_in_queue);
+				pinfo->first_in_queue);
 		if (has_philo_died(mystruct, pinfo, lastAte) == true)
 			break ;
 		sem_post(pinfo->semQueue);

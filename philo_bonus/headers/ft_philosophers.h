@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 20:27:58 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 14:02:55 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@
 # define SEM_PRINT "/print"
 # define SEM_FINISHED_EATING "/finishedeating"
 // debugging
-# define PRINT_HERE() (printf("Line: %d, file: %s\n", __LINE__, __FILE__))
+// # define PRINT_HERE() (printf("Line: %d, file: %s\n", __LINE__, __FILE__))
 // # define PRINT_PHILO() (printf("Line: %d, file: %s, philonum: %d\n",
 // __LINE__, __FILE__, pinfo->phNum))
 

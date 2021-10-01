@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 16:55:32 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:49:40 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:40:09 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,24 @@
 */
 void	philo_sleep_until_timestamp(long int timestamp)
 {
+	static bool				first_time = true;
+	static t_philosophers	*mystruct;
+
+	if (first_time == true)
+	{
+		first_time = false;
+		mystruct = philo_get_mystruct(NULL);
+	}
 	while (1)
 	{
 		if (timestamp <= philo_get_current_timestamp())
 			return ;
-		usleep(100);
+		if (mystruct->phNum < 100)
+			usleep(100);
+		else if (mystruct->phNum < 150)
+			usleep(1500);
+		else
+			usleep(2000);
 	}
 }
 

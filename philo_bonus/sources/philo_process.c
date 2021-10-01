@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 18:00:47 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/30 20:28:16 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 13:55:38 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ t_philosopher_info *pinfo)
 	exit(EXIT_SUCCESS);
 }
 
-static void	init_philo_process(t_philosopher_info *pinfo)
+static void	init_philo_process(t_philosophers *mystruct,
+t_philosopher_info *pinfo)
 {
 	pinfo->stopDeath = false;
 	sem_open(SEM_FORKS, O_CREAT, 0);
@@ -34,12 +35,8 @@ static void	init_philo_process(t_philosopher_info *pinfo)
 	sem_open(SEM_FINISHED_EATING, O_CREAT, 0);
 	sem_open(pinfo->semQueueName, O_CREAT, 0);
 	sem_open(SEM_PRINT, O_CREAT, 0);
+	sem_open(pinfo->semDoneEatingName, O_CREAT, 0);
 	philo_enqueue(pinfo, pinfo->startTime);
-}
-
-void	philo_process(t_philosophers *mystruct, t_philosopher_info *pinfo)
-{
-	init_philo_process(pinfo);
 	if (pthread_create(&pinfo->reaper, NULL, &reaper_routine, pinfo))
 		exit_philo_process(mystruct, pinfo);
 	philo_sleep_until_timestamp(pinfo->startTime);
@@ -52,6 +49,11 @@ void	philo_process(t_philosophers *mystruct, t_philosopher_info *pinfo)
 	}
 	else
 		philo_print_status(pinfo->phNum, PHTH, pinfo->startTime);
+}
+
+void	philo_process(t_philosophers *mystruct, t_philosopher_info *pinfo)
+{
+	init_philo_process(mystruct, pinfo);
 	while (1)
 	{
 		philo_fork(mystruct, pinfo);
