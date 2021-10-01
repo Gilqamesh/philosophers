@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 13:23:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 20:08:46 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:17:01 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,15 +67,7 @@ void	philo_unlock_all_forks(t_philosophers *mystruct)
 	{
 		i = -1;
 		while (++i < mystruct->phNum)
-		{
-			pthread_mutex_lock(&mystruct->forks[i].is_available_mutex);
-			if (mystruct->forks[i].is_available == false)
-			{
-				pthread_mutex_unlock(&mystruct->forks[i].fork);
-				mystruct->forks[i].is_available = true;
-			}
-			pthread_mutex_unlock(&mystruct->forks[i].is_available_mutex);
-		}
+			pthread_mutex_unlock(&mystruct->forks[i].fork);
 		usleep(long_int_max_of(mystruct->time_to_die * 1000,
 				mystruct->time_to_sleep * 1000));
 	}

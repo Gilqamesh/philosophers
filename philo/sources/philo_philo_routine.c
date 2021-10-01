@@ -6,12 +6,16 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 14:24:55 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 18:38:01 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:25:03 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../headers/ft_philosophers.h"
 
+// This line was:
+// pinfo->lastThinkTimeStamp += pinfo->time_to_sleep;
+// Make sure that the below code doesnt break the program!
+// pinfo->lastThinkTimeStamp += pinfo->time_to_eat;
 /*
 ** 1. Waits until the start_mutexes are unlocked.
 ** 2. Sleeps until the start time.
@@ -24,9 +28,6 @@ static int	initialize_philo(t_philosopher_info *pinfo)
 	philo_sleep_until_timestamp(pinfo->ateTimestamp);
 	if (pinfo->phNum % 2 == 0)
 	{
-		// This line was:
-		// pinfo->lastThinkTimeStamp += pinfo->time_to_sleep;
-		// Make sure that the below code doesnt break the program!
 		pinfo->lastThinkTimeStamp += pinfo->time_to_eat;
 		if (philo_print_status(pinfo->phNum, PHSL, pinfo->ateTimestamp))
 			return (1);
@@ -50,14 +51,8 @@ static bool	is_game_over(t_philosophers *mystruct)
 
 static void	unlock_both_forks(t_philosopher_info *pinfo)
 {
-	pthread_mutex_lock(&pinfo->refRightFork->is_available_mutex);
-	pinfo->refRightFork->is_available = true;
 	pthread_mutex_unlock(&pinfo->refRightFork->fork);
-	pthread_mutex_unlock(&pinfo->refRightFork->is_available_mutex);
-	pthread_mutex_lock(&pinfo->refLeftFork->is_available_mutex);
-	pinfo->refLeftFork->is_available = true;
 	pthread_mutex_unlock(&pinfo->refLeftFork->fork);
-	pthread_mutex_unlock(&pinfo->refLeftFork->is_available_mutex);
 }
 
 /*
@@ -70,36 +65,30 @@ static int	try_to_eat(t_philosopher_info *pinfo)
 {
 	long int	timestamp;
 
-	pthread_mutex_lock(&pinfo->refLeftFork->is_available_mutex);
-	if (pinfo->refLeftFork->is_available)
-	{
-		if (try_left_fork(pinfo) == true)
-			return (-1);
-		pthread_mutex_lock(&pinfo->refRightFork->fork);
-		timestamp = philo_get_current_timestamp();
-		if (try_right_fork(pinfo, timestamp) == true
-			|| try_eating(pinfo, timestamp) == true)
-			return (-1);
-		unlock_both_forks(pinfo);
-		if (philo_print_status(pinfo->phNum, PHSL,
-				pinfo->ateTimestamp + pinfo->time_to_eat))
-			return (-1);
-		philo_sleep_until_timestamp(pinfo->ateTimestamp
-			+ pinfo->time_to_eat + pinfo->time_to_sleep);
-		pinfo->lastThinkTimeStamp = pinfo->ateTimestamp
-			+ pinfo->time_to_eat + pinfo->time_to_sleep;
-		if (philo_print_status(pinfo->phNum, PHTH, pinfo->lastThinkTimeStamp))
-			return (-1);
-		return (1);
-	}
-	return (0);
+	if (try_left_fork(pinfo) == true)
+		return (-1);
+	pthread_mutex_lock(&pinfo->refRightFork->fork);
+	timestamp = philo_get_current_timestamp();
+	if (try_right_fork(pinfo, timestamp) == true
+		|| try_eating(pinfo, timestamp) == true)
+		return (-1);
+	unlock_both_forks(pinfo);
+	if (philo_print_status(pinfo->phNum, PHSL,
+			pinfo->ateTimestamp + pinfo->time_to_eat))
+		return (-1);
+	philo_sleep_until_timestamp(pinfo->ateTimestamp
+		+ pinfo->time_to_eat + pinfo->time_to_sleep);
+	pinfo->lastThinkTimeStamp = pinfo->ateTimestamp
+		+ pinfo->time_to_eat + pinfo->time_to_sleep;
+	if (philo_print_status(pinfo->phNum, PHTH, pinfo->lastThinkTimeStamp))
+		return (-1);
+	return (1);
 }
 
 void	*philo_routine(void *info)
 {
 	t_philosopher_info	*pinfo;
 	t_philosophers		*mystruct;
-	int					ret;
 
 	pinfo = (t_philosopher_info *)info;
 	mystruct = philo_get_mystruct(NULL);
@@ -110,14 +99,8 @@ void	*philo_routine(void *info)
 		if (is_game_over(mystruct) == true)
 			break ;
 		pthread_mutex_unlock(&mystruct->game_over_mutex);
-		ret = try_to_eat(pinfo);
-		if (ret > 0)
-			continue ;
-		else if (ret < 0)
+		if (try_to_eat(pinfo) < 0)
 			break ;
-		else
-			pthread_mutex_unlock(&pinfo->refLeftFork->is_available_mutex);
-		usleep(100);
 	}
 	return (NULL);
 }

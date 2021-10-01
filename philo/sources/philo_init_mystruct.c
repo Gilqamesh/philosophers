@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/28 19:35:49 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:16:33 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,8 @@ static int	init_forks(t_philosophers *mystruct)
 	i = -1;
 	while (++i < mystruct->phNum)
 	{
-		if (pthread_mutex_init(&mystruct->forks[i].fork, NULL)
-			|| pthread_mutex_init(&mystruct->forks[i].is_available_mutex, NULL))
+		if (pthread_mutex_init(&mystruct->forks[i].fork, NULL))
 			return (1);
-		mystruct->forks[i].is_available = true;
 	}
 	return (0);
 }
@@ -130,7 +128,6 @@ int	philo_destroy_mystruct(t_philosophers *mystruct)
 	while (++i < mystruct->phNum)
 	{
 		pthread_mutex_destroy(&mystruct->forks[i].fork);
-		pthread_mutex_destroy(&mystruct->forks[i].is_available_mutex);
 		pthread_mutex_destroy(&mystruct->start_mutexes[i]);
 	}
 	philo_my_free((void **)&mystruct->forks);

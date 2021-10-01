@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/29 15:39:16 by edavid            #+#    #+#             */
-/*   Updated: 2021/10/01 14:03:16 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 15:30:08 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,5 @@ int	main(int argc, char **argv)
 	if (philo_kill_processes(&mystruct))
 		return (1);
 	philo_destroy_mystruct(&mystruct);
-	system("leaks philo_bonus");
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 16:55:32 by edavid            #+#    #+#             */
-/*   Updated: 2021/10/01 12:40:09 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 15:28:42 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ void	philo_sleep_until_timestamp(long int timestamp)
 	{
 		if (timestamp <= philo_get_current_timestamp())
 			return ;
-		if (mystruct->phNum < 100)
+		if (mystruct->phNum < 10)
+			usleep(10);
+		else if (mystruct->phNum < 100)
 			usleep(100);
 		else if (mystruct->phNum < 150)
 			usleep(1500);

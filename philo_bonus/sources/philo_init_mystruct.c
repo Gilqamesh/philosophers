@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/25 12:14:27 by edavid            #+#    #+#             */
-/*   Updated: 2021/10/01 14:02:32 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 14:48:34 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 {
 	memset(mystruct, 0, sizeof(*mystruct));
 	philo_get_mystruct(mystruct);
+	mystruct->allFinishedEating = true;
 	mystruct->phNum = philo_atoi(argv[1]);
 	mystruct->forks = philo_sem_init(SEM_FORKS, mystruct->phNum);
 	mystruct->semFinish = philo_sem_init(SEM_FINISH, 0);
@@ -60,7 +61,8 @@ int	philo_init_mystruct(t_philosophers *mystruct, int argc, char **argv)
 	mystruct->nOfMeals = CANT_STOP_EATING;
 	if (argc == 6)
 		mystruct->nOfMeals = philo_atoi(argv[5]);
-	philo_try_malloc((void **)&mystruct->process_ids, mystruct->phNum);
+	philo_try_malloc((void **)&mystruct->process_ids, mystruct->phNum
+		* sizeof(*mystruct->process_ids));
 	philo_try_calloc((void **)&mystruct->ph_arr, mystruct->phNum,
 		sizeof(*mystruct->ph_arr));
 	return (0);

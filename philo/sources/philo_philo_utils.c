@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/28 18:45:34 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/28 19:21:33 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:28:45 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,6 @@
 
 bool	try_right_fork(t_philosopher_info *pinfo, long int timestamp)
 {
-	pthread_mutex_lock(&pinfo->refRightFork->is_available_mutex);
-	pinfo->refRightFork->is_available = false;
-	pthread_mutex_unlock(&pinfo->refRightFork->is_available_mutex);
 	if (philo_print_status(pinfo->phNum, PHILO_FORK, timestamp))
 		return (true);
 	return (false);
@@ -24,10 +21,9 @@ bool	try_right_fork(t_philosopher_info *pinfo, long int timestamp)
 
 bool	try_left_fork(t_philosopher_info *pinfo)
 {
-	pinfo->refLeftFork->is_available = false;
 	pthread_mutex_lock(&pinfo->refLeftFork->fork);
-	pthread_mutex_unlock(&pinfo->refLeftFork->is_available_mutex);
-	if (philo_print_status(pinfo->phNum, PHILO_FORK, pinfo->lastThinkTimeStamp))
+	if (philo_print_status(pinfo->phNum, PHILO_FORK,
+			philo_get_current_timestamp()))
 		return (true);
 	return (false);
 }

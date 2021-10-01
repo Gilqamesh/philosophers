@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/01 12:05:35 by edavid            #+#    #+#             */
-/*   Updated: 2021/10/01 14:00:16 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 14:54:30 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,22 +74,26 @@ int	philo_init_processes(t_philosophers *mystruct)
 
 int	philo_kill_processes(t_philosophers *mystruct)
 {
-	int	i;
+	int		i;
+	bool	waitProcesses;
 
-	mystruct->allFinishedEating = true;
+	waitProcesses = false;
 	i = -1;
 	while (++i < mystruct->phNum)
 		sem_wait(mystruct->semFinishedEating);
 	if (mystruct->allFinishedEating == true)
+	{
+		waitProcesses = true;
 		sem_post(mystruct->semFinish);
+	}
 	pthread_join(mystruct->endCondThread, NULL);
 	i = -1;
 	while (++i < mystruct->phNum)
 	{
-		if (mystruct->allFinishedEating == true)
+		if (waitProcesses == true)
 		{
 			sem_post(mystruct->semQueue[i]);
-			waitpid(mystruct->process_ids[i], NULL, -1);
+			waitpid(mystruct->process_ids[i], NULL, 0);
 		}
 		else
 			kill(mystruct->process_ids[i], SIGTERM);

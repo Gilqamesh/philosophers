@@ -6,7 +6,7 @@
 /*   By: edavid <edavid@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/23 13:33:50 by edavid            #+#    #+#             */
-/*   Updated: 2021/09/29 19:23:33 by edavid           ###   ########.fr       */
+/*   Updated: 2021/10/01 12:14:26 by edavid           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ typedef struct s_philo_eat_info
 typedef struct s_philo_fork
 {
 	pthread_mutex_t	fork;
-	bool			is_available;
-	pthread_mutex_t	is_available_mutex;
 }	t_philo_fork;
 
 // time_to_die, time_to_eat and time_to_sleep should be converted to microsecs
